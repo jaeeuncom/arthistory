@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>미술사 작품 카드</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+      background: #f5f4f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    header p {
+      font-size: 14px;
+      color: #777;
+    }
+
+    .grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 18px;
+    }
+
+    .card-wrap {
+      height: 270px;
+      perspective: 900px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .card-wrap:hover .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    /* 앞면 */
+    .card-front {
+      background: #e8e6e0;
+    }
+
+    .card-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-front .placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #dddbd4;
+    }
+
+    .card-front .placeholder svg {
+      opacity: 0.3;
+    }
+
+    .card-front .num-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+    }
+
+    /* 뒷면 */
+    .card-back {
+      background: #fff;
+      transform: rotateY(180deg);
+      border: 1px solid #e0ddd6;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1.2rem 1.1rem;
+      gap: 7px;
+    }
+
+    .card-back .num {
+      font-size: 11px;
+      color: #aaa;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card-back .title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111;
+      line-height: 1.4;
+    }
+
+    .card-back .type {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .card-back .location {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .card-back .year {
+      font-size: 13px;
+      font-weight: 600;
+      color: #3b6fd4;
+      margin-top: 4px;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f0ede6;
+      margin: 2px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>미술사 작품 카드</h1>
+    <p>카드에 마우스를 올리면 작품 정보가 나타납니다 · 이미지 파일명: 1.png, 2.png, ...</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const works = [
+      { num: 1,  title: "옥좌에 앉으신 그리스도",          type: "모자이크",    location: "산 아폴리나레 누오보 성당, 라벤나",        year: "6세기 초 (500–520년경)" },
+      { num: 2,  title: "유스티니아누스 황제",              type: "모자이크",    location: "산 비탈레 성당, 라벤나",                  year: "547년경" },
+      { num: 3,  title: "슈파이어 대성당",                  type: "건축",        location: "독일",                                    year: "1030–1061년" },
+      { num: 4,  title: "생드니 성당의 주보랑",             type: "건축",        location: "파리",                                    year: "1137–1144년경" },
+      { num: 5,  title: "노트르담 대성당",                  type: "건축",        location: "파리",                                    year: "1163–1345년" },
+      { num: 6,  title: "스크로베니 채플 프레스코",         type: "프레스코",    location: "조토 디 본도네 / 파도바",                 year: "1303–1305년경" },
+      { num: 7,  title: "이삭을 제물로 바치는 아브라함",   type: "청동부조",    location: "브루넬레스키",                            year: "1401년" },
+      { num: 8,  title: "이삭을 제물로 바치는 아브라함",   type: "청동부조",    location: "기베르티",                                year: "1401년" },
+      { num: 9,  title: "피렌체 두오모 돔",                 type: "건축",        location: "브루넬레스키 / 피렌체",                   year: "완공 1436년" },
+      { num: 10, title: "성 삼위일체",                      type: "프레스코",    location: "마사초 / 산타 마리아 노벨라 성당, 피렌체", year: "1426–1428년" },
+      { num: 11, title: "성 게오르기우스",                  type: "대리석 조각", location: "도나텔로 / 오르산미켈레, 피렌체",         year: "1415–1417년" },
+      { num: 12, title: "성 세바스찬의 순교",               type: "회화",        location: "폴라이우올로 / 런던 내셔널 갤러리",       year: "1475년" },
+      { num: 13, title: "산 로마노 전투",                   type: "회화",        location: "파올로 우첼로 / 런던 내셔널 갤러리",      year: "1438–1440년경" },
+      { num: 14, title: "비너스의 탄생",                    type: "회화",        location: "보티첼리 / 우피치 미술관, 피렌체",        year: "1484–1486년경" },
+      { num: 15, title: "유디트와 홀로페르네스",            type: "회화",        location: "안드레아 만테냐",                         year: "1491년" },
+      { num: 16, title: "유디트와 홀로페르네스",            type: "회화",        location: "카라바조",                                year: "1598–1599년경" },
+      { num: 17, title: "다비드",                           type: "대리석 조각", location: "미켈란젤로 / 아카데미아 미술관, 피렌체",  year: "1501–1504년" },
+      { num: 18, title: "최후의 만찬",                      type: "벽화",        location: "레오나르도 다 빈치 / 산타 마리아 델레 그라치에, 밀라노", year: "1495–1498년" },
+      { num: 19, title: "암굴의 성모",                      type: "회화",        location: "레오나르도 다 빈치 / 루브르 박물관",      year: "1483–1486년" },
+      { num: 20, title: "암굴의 성모",                      type: "회화",        location: "레오나르도 다 빈치 / 런던 내셔널 갤러리", year: "1491–1508년" },
+      { num: 21, title: "모나리자",                         type: "회화",        location: "레오나르도 다 빈치 / 루브르 박물관",      year: "1503년경" },
+      { num: 22, title: "론다니니의 피에타",                type: "조각",        location: "미켈란젤로 / 스포르체스코 성, 밀라노",    year: "1552–1564년" },
+      { num: 23, title: "라우렌치아나 도서관 계단실",       type: "건축",        location: "미켈란젤로 / 피렌체",                     year: "1500년대" },
+      { num: 24, title: "초원의 성모",                      type: "회화",        location: "라파엘로 / 미술사 박물관, 비엔나",        year: "1505년경" },
+      { num: 25, title: "폭풍",                             type: "회화",        location: "조르조네 / 아카데미아 미술관, 베네치아",  year: "1506–1508년경" },
+      { num: 26, title: "잠자는 비너스",                    type: "회화",        location: "조르조네",                                year: "1508–1510년" },
+      { num: 27, title: "우르비노의 비너스",                type: "회화",        location: "티치아노",                                year: "1538년" },
+      { num: 28, title: "팔라초 루첼라이",                  type: "건축",        location: "레온 바티스타 알베르티 / 피렌체",         year: "1446–1451년" },
+      { num: 29, title: "사비니 여인의 약탈",               type: "대리석 조각", location: "잠볼로냐 / 로지아 데이 란치, 피렌체",    year: "1581–1583년" },
+      { num: 30, title: "최후의 만찬",                      type: "회화",        location: "틴토레토 / 산 조르조 마조레 성당, 베네치아", year: "1592–1594년" },
+      { num: 31, title: "목이 긴 마돈나",                   type: "회화",        location: "파르미자니노",                            year: "1534–1540년경" },
+      { num: 32, title: "십자가에서 내려지는 그리스도",     type: "회화",        location: "폰토르모",                                year: "1525–1528년" },
+      { num: 33, title: "다섯 번째 봉인의 개봉",            type: "회화",        location: "엘 그레코 / 메트로폴리탄 미술관, 뉴욕",  year: "1610년경" },
+    ];
+
+    const grid = document.getElementById('grid');
+
+    works.forEach(w => {
+      const wrap = document.createElement('div');
+      wrap.className = 'card-wrap';
+      const ext = w.num === 8 ? 'png' : 'jpg';
+      wrap.innerHTML = `
+        <div class="card-inner">
+          <div class="card-front">
+            <img src="${w.num}.${ext}" alt="${w.title}"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="placeholder" style="display:none">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                   stroke="#888" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+            </div>
+            <span class="num-badge">${w.num}</span>
+          </div>
+          <div class="card-back">
+            <div class="num">No. ${w.num}</div>
+            <div class="title">${w.title}</div>
+            <div class="divider"></div>
+            <div class="type">${w.type}</div>
+            <div class="location">${w.location}</div>
+            <div class="year">${w.year}</div>
+          </div>
+        </div>
+      `;
+      grid.appendChild(wrap);
+    });
+  </script>
+
+</body>
+</html>
